@@ -4,6 +4,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[SelectionBase]
 public class MovementController : MonoBehaviour
 {
     Vector2 inputVector = Vector2.zero;

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -6,7 +7,7 @@ using UnityEngine;
 public class EnemyViewController : MonoBehaviour
 {
     [SerializeField] float viewRange;
-    [SerializeField] float viewAngle; [Range(0, 180)]
+    [SerializeField] float viewAngle;
 
     GameObject player;
     EnemyMovementController movementController;
@@ -14,7 +15,7 @@ public class EnemyViewController : MonoBehaviour
     Renderer[] eyes;
     Color standardEyeColor;
 
-    bool playerFound = false;
+    bool playerInView = false;
 
     void Awake()
     {
@@ -23,40 +24,21 @@ public class EnemyViewController : MonoBehaviour
         eyesParent = gameObject.transform.GetChild(1).gameObject;
         eyes = eyesParent.GetComponentsInChildren<Renderer>();
         standardEyeColor = eyes[0].material.color;
+        Mathf.Clamp(viewAngle, 0, 360);
     }
 
     void Update()
     {
-        if (Vector3.Distance(transform.position, player.transform.position) < viewRange)
+        if (Vector3.Distance(transform.position, player.transform.position) < viewRange && Vector3.Angle(transform.forward, player.transform.position - transform.position) < viewAngle / 2)
         {
-            if (Vector3.Angle(transform.forward, player.transform.position) < viewAngle / 2)
+            if (playerInView == false)
             {
-                if (playerFound == false)
-                {
-                    foreach (Renderer r in eyes)
-                    {
-                        r.material.color = Color.red;
-                    }
-                    movementController.SendMessage("OnPlayerFound");
-                    playerFound = true;
-                }
-            }
-            else
-            {
-                if (playerFound == true)
-                {
-                    foreach (Renderer r in eyes)
-                    {
-                        r.material.color = standardEyeColor;
-                    }
-                    playerFound = false;
-                    movementController.SendMessage("OnPlayerLost");
-                }
+                PlayerFound();
             }
         }
-        else if (playerFound == true)
+        else if (playerInView == true)
         {
-            playerFound = false;
+            PlayerLost();
         }
     }
 
@@ -77,5 +59,25 @@ public class EnemyViewController : MonoBehaviour
     {
         angle += transform.eulerAngles.y;
         return new Vector3(Mathf.Sin(angle * Mathf.Deg2Rad), 0, Mathf.Cos(angle * Mathf.Deg2Rad));
+    }
+
+    void PlayerFound()
+    {
+        foreach (Renderer r in eyes)
+        {
+            r.material.color = Color.red;
+        }
+        movementController.SendMessage("OnPlayerFound");
+        playerInView = true;
+    }
+
+    void PlayerLost()
+    {
+        foreach (Renderer r in eyes)
+        {
+            r.material.color = standardEyeColor;
+        }
+        movementController.SendMessage("OnPlayerLost");
+        playerInView = false;
     }
 }
