@@ -14,7 +14,7 @@ public class EnemyMovementController : MonoBehaviour
 
     [SerializeField] int speed = 5;
 
-
+    bool roam = true;
 
     void Awake()
     {
@@ -25,15 +25,16 @@ public class EnemyMovementController : MonoBehaviour
 
     void Update()
     {
-        timer += Time.deltaTime;
-        if (timer > placeHolder)
+        if (roam)
         {
-            agent.SetDestination(RandomNavMeshLocationInRange(UnityEngine.Random.Range(0, 10)));
-            timer = 0;
-            placeHolder = UnityEngine.Random.Range(timeBetweenRoam - (timeBetweenRoam / 3), timeBetweenRoam + (timeBetweenRoam / 3));
+            timer += Time.deltaTime;
+            if (timer > placeHolder)
+            {
+                agent.SetDestination(RandomNavMeshLocationInRange(UnityEngine.Random.Range(0, 10)));
+                timer = 0;
+                placeHolder = UnityEngine.Random.Range(timeBetweenRoam - (timeBetweenRoam / 3), timeBetweenRoam + (timeBetweenRoam / 3));
+            }
         }
-
-
     }
 
 
@@ -48,5 +49,15 @@ public class EnemyMovementController : MonoBehaviour
             finalPosition = hit.position;
         }
         return finalPosition;
+    }
+
+    void OnPlayerFound()
+    {
+        roam = false;
+    }
+
+    void OnPlayerLost()
+    {
+        roam = true;
     }
 }
