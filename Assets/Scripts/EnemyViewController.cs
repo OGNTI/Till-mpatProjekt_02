@@ -17,6 +17,10 @@ public class EnemyViewController : MonoBehaviour
 
     bool playerInView = false;
 
+    GameObject viewTarget;
+
+    Vector3 dirToPlayer;
+
     void Awake()
     {
         player = GameObject.FindGameObjectWithTag("Player");
@@ -29,12 +33,30 @@ public class EnemyViewController : MonoBehaviour
 
     void Update()
     {
-        if (Vector3.Distance(transform.position, player.transform.position) < viewRange && Vector3.Angle(transform.forward, player.transform.position - transform.position) < viewAngle / 2)
+        dirToPlayer = player.transform.position - transform.position;
+
+        GameObject oldViewTarget = viewTarget;
+
+        if (Vector3.Distance(transform.position, player.transform.position) < viewRange &&
+            Vector3.Angle(transform.forward, dirToPlayer) < viewAngle / 2)
         {
-            if (playerInView == false)
+            RaycastHit hit;
+            Physics.Raycast(transform.position, dirToPlayer, out hit, viewRange);
+            
+            if (hit.collider != null)
             {
-                PlayerFound();
+                viewTarget = hit.collider.gameObject;
             }
+            else viewTarget = null;
+
+            if (oldViewTarget != viewTarget && viewTarget.tag == "Player")
+            {
+                if (playerInView == false)
+                {
+                    PlayerFound();
+                }
+            }
+            
         }
         else if (playerInView == true)
         {
@@ -49,6 +71,8 @@ public class EnemyViewController : MonoBehaviour
 
         Vector3 viewAngleA = PosFromAngle(-viewAngle / 2);
         Vector3 viewAngleB = PosFromAngle(viewAngle / 2);
+
+        Gizmos.DrawLine(transform.position, dirToPlayer);
 
         Gizmos.DrawLine(transform.position, transform.position + viewAngleA * viewRange);
         Gizmos.DrawLine(transform.position, transform.position + viewAngleB * viewRange);
