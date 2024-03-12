@@ -42,7 +42,9 @@ public class EnemyViewController : MonoBehaviour
         {
             RaycastHit hit;
             Physics.Raycast(transform.position, dirToPlayer, out hit, viewRange);
-            
+
+            Debug.DrawRay(transform.position, dirToPlayer, Color.green);
+
             if (hit.collider != null)
             {
                 viewTarget = hit.collider.gameObject;
@@ -56,7 +58,7 @@ public class EnemyViewController : MonoBehaviour
                     PlayerFound();
                 }
             }
-            
+
         }
         else if (playerInView == true)
         {
@@ -66,13 +68,16 @@ public class EnemyViewController : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        Gizmos.color = Color.green;
-        Handles.color = Color.green;
 
         Vector3 viewAngleA = PosFromAngle(-viewAngle / 2);
         Vector3 viewAngleB = PosFromAngle(viewAngle / 2);
 
-        Gizmos.DrawLine(transform.position, dirToPlayer);
+        Gizmos.color = Color.blue;
+        //from enemy point to player
+        Gizmos.DrawLine(transform.position, transform.position + dirToPlayer.normalized);
+
+        Gizmos.color = Color.green;
+        Handles.color = Color.green;
 
         Gizmos.DrawLine(transform.position, transform.position + viewAngleA * viewRange);
         Gizmos.DrawLine(transform.position, transform.position + viewAngleB * viewRange);

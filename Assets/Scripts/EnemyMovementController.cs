@@ -26,6 +26,7 @@ public class EnemyMovementController : MonoBehaviour
     string state;
     string[] states = { "roam", "follow", "attack", "search" };
     Vector3 targetLastKnownPosition;
+    Vector3 dirFromPlayerToSelf;
 
     GameObject player;
 
@@ -40,6 +41,8 @@ public class EnemyMovementController : MonoBehaviour
 
     void Update()
     {
+        dirFromPlayerToSelf = (transform.position - player.transform.position).normalized;
+
         if (state == states[0])
         {
             roamTimer += Time.deltaTime;
@@ -54,8 +57,6 @@ public class EnemyMovementController : MonoBehaviour
         {
             if (Vector3.Distance(transform.position, player.transform.position) > attackRange)
             {
-                FaceTarget(player);
-                Vector3 dirFromPlayerToSelf = transform.position - player.transform.position;
                 agent.SetDestination(dirFromPlayerToSelf * attackRange);
                 state = states[2];
             }
@@ -68,7 +69,11 @@ public class EnemyMovementController : MonoBehaviour
         {
             Debug.Log("die die die");
 
-            if (targetFound == false)
+            if (Vector3.Distance(transform.position, player.transform.position) > attackRange)
+            {
+                state = states[1];
+            }
+            else if (targetFound == false)
             {
                 targetLastKnownPosition = player.transform.position;
                 state = states[3];
@@ -77,10 +82,10 @@ public class EnemyMovementController : MonoBehaviour
         else if (state == states[3])
         {
             searchTimer += Time.deltaTime;
-            
+
             Debug.Log("where tf did he go?");
             agent.SetDestination(targetLastKnownPosition);
-            
+
             if (searchTimer > giveUpSeach)
             {
                 state = states[0];
@@ -99,7 +104,12 @@ public class EnemyMovementController : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.DrawLine(player.transform.position, player.transform.position + (transform.position - player.transform.position));
+        Gizmos.color = Color.red;
+        //from player point towards enemy
+        Gizmos.DrawLine(player.transform.position, player.transform.position + dirFromPlayerToSelf);
+        Gizmos.color = Color.black;
+        //from same apparently, dunno why i did thi
+        Gizmos.DrawLine(player.transform.position, player.transform.position + (transform.position - player.transform.position).normalized);
     }
 
     public Vector3 RandomNavMeshLocationInRange(float range)
