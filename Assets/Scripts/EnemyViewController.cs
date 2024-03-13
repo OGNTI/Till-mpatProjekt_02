@@ -41,7 +41,7 @@ public class EnemyViewController : MonoBehaviour
             Vector3.Angle(transform.forward, dirToPlayer) < viewAngle / 2)
         {
             RaycastHit hit;
-            Physics.Raycast(transform.position, dirToPlayer, out hit, viewRange); //is sight blocked or not
+            Physics.Raycast(transform.position+Vector3.up, dirToPlayer+Vector3.up, out hit, viewRange); //is sight blocked or not
             Debug.DrawRay(transform.position, dirToPlayer, Color.green);
 
             if (hit.collider != null) viewTarget = hit.collider.gameObject;

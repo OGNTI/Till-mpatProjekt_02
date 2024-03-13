@@ -54,42 +54,47 @@ public class EnemyMovementController : MonoBehaviour
         }
         else if (state == states[1])
         {
-            if (Vector3.Distance(transform.position, player.transform.position) > viewController.attackRange)
-            {
-                agent.SetDestination(player.transform.position + (dirFromPlayerToSelf * viewController.attackRange));
-                state = states[2];
-            }
-            else
-            {
-                state = states[2];
-            }
+            
         }
-        else if (state == states[2])
-        {
-            Debug.Log("die die die");
 
-            if (Vector3.Distance(transform.position, player.transform.position) > viewController.attackRange)
-            {
-                state = states[1];
-            }
-            else if (targetFound == false)
-            {
-                targetLastKnownPosition = player.transform.position;
-                state = states[3];
-            }
-        }
-        else if (state == states[3])
-        {
-            searchTimer += Time.deltaTime;
+        // else if (state == states[1])
+        // {
+        //     if (Vector3.Distance(transform.position, player.transform.position) > viewController.attackRange)
+        //     {
+        //         agent.SetDestination(player.transform.position + (dirFromPlayerToSelf * viewController.attackRange));
+        //         state = states[2];
+        //     }
+        //     else
+        //     {
+        //         state = states[2];
+        //     }
+        // }
+        // else if (state == states[2])
+        // {
+        //     Debug.Log("die die die");
 
-            Debug.Log("where tf did he go?");
-            agent.SetDestination(targetLastKnownPosition);
+        //     if (Vector3.Distance(transform.position, player.transform.position) > viewController.attackRange)
+        //     {
+        //         state = states[1];
+        //     }
+        //     else if (targetFound == false)
+        //     {
+        //         targetLastKnownPosition = player.transform.position;
+        //         state = states[3];
+        //     }
+        // }
+        // else if (state == states[3])
+        // {
+        //     searchTimer += Time.deltaTime;
 
-            if (searchTimer > giveUpSeach)
-            {
-                state = states[0];
-            }
-        }
+        //     Debug.Log("where tf did he go?");
+        //     agent.SetDestination(targetLastKnownPosition);
+
+        //     if (searchTimer > giveUpSeach)
+        //     {
+        //         state = states[0];
+        //     }
+        // }
 
         if (targetFound == true)
         {
