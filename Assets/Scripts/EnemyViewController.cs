@@ -1,13 +1,11 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
 public class EnemyViewController : MonoBehaviour
 {
-    [SerializeField] float viewRange;
-    [SerializeField] float viewAngle;
+    public float viewRange;
+    public float viewAngle;
+    public float attackRange;
 
     GameObject player;
     EnemyMovementController movementController;
@@ -15,7 +13,8 @@ public class EnemyViewController : MonoBehaviour
     Renderer[] eyes;
     Color standardEyeColor;
 
-    bool playerInView = false;
+    bool playerInViewRange = false;
+    bool playerInAttackRange = false;
 
     GameObject viewTarget;
 
@@ -37,54 +36,29 @@ public class EnemyViewController : MonoBehaviour
 
         GameObject oldViewTarget = viewTarget;
 
+        //is player in viewRange and viewAngle
         if (Vector3.Distance(transform.position, player.transform.position) < viewRange &&
             Vector3.Angle(transform.forward, dirToPlayer) < viewAngle / 2)
         {
             RaycastHit hit;
-            Physics.Raycast(transform.position, dirToPlayer, out hit, viewRange);
-
+            Physics.Raycast(transform.position, dirToPlayer, out hit, viewRange); //is sight blocked or not
             Debug.DrawRay(transform.position, dirToPlayer, Color.green);
 
-            if (hit.collider != null)
-            {
-                viewTarget = hit.collider.gameObject;
-            }
+            if (hit.collider != null) viewTarget = hit.collider.gameObject;
             else viewTarget = null;
 
-            if (oldViewTarget != viewTarget && viewTarget.tag == "Player")
+            if (oldViewTarget != viewTarget && viewTarget.tag == "Player") PlayerFound();
+
+            if (Vector3.Distance(transform.position, player.transform.position) < attackRange)
             {
-                if (playerInView == false)
-                {
-                    PlayerFound();
-                }
+                if (playerInAttackRange == false) InAttackRange();
             }
-
+            else if (playerInAttackRange == true) OutOfAttackRange();
         }
-        else if (playerInView == true)
-        {
-            PlayerLost();
-        }
+        else if (playerInViewRange == true) PlayerLost();
     }
 
-    void OnDrawGizmos()
-    {
-
-        Vector3 viewAngleA = PosFromAngle(-viewAngle / 2);
-        Vector3 viewAngleB = PosFromAngle(viewAngle / 2);
-
-        Gizmos.color = Color.blue;
-        //from enemy point to player
-        Gizmos.DrawLine(transform.position, transform.position + dirToPlayer.normalized);
-
-        Gizmos.color = Color.green;
-        Handles.color = Color.green;
-
-        Gizmos.DrawLine(transform.position, transform.position + viewAngleA * viewRange);
-        Gizmos.DrawLine(transform.position, transform.position + viewAngleB * viewRange);
-        Handles.DrawWireArc(transform.position, transform.up, viewAngleA, viewAngle, viewRange);
-    }
-
-    Vector3 PosFromAngle(float angle)
+    public Vector3 PosFromAngle(float angle)
     {
         angle += transform.eulerAngles.y;
         return new Vector3(Mathf.Sin(angle * Mathf.Deg2Rad), 0, Mathf.Cos(angle * Mathf.Deg2Rad));
@@ -97,7 +71,7 @@ public class EnemyViewController : MonoBehaviour
             r.material.color = Color.red;
         }
         movementController.SendMessage("OnPlayerFound");
-        playerInView = true;
+        playerInViewRange = true;
     }
 
     void PlayerLost()
@@ -107,6 +81,18 @@ public class EnemyViewController : MonoBehaviour
             r.material.color = standardEyeColor;
         }
         movementController.SendMessage("OnPlayerLost");
-        playerInView = false;
+        playerInViewRange = false;
+    }
+
+    void InAttackRange()
+    {
+        playerInAttackRange = true;
+        movementController.SendMessage("OnAttack");
+    }
+
+    void OutOfAttackRange()
+    {
+        playerInAttackRange = false;
+        movementController.SendMessage("OnAttackLost");
     }
 }
