@@ -5,6 +5,9 @@ using UnityEngine.AI;
 [SelectionBase]
 public class EnemyMovementController : MonoBehaviour
 {
+    EnemyViewController viewController;
+    EnemyAttackController attackController;
+
     NavMeshAgent agent;
 
     float roamTimer = 0;
@@ -16,10 +19,9 @@ public class EnemyMovementController : MonoBehaviour
 
     bool targetFound = false;
 
-    EnemyViewController viewController;
 
     float searchTimer = 0;
-    float giveUpSeach = 10;
+    float giveUpSeachTime = 10;
 
     string state;
     string[] states = { "roam", "follow", "attack", "search" };
@@ -28,12 +30,16 @@ public class EnemyMovementController : MonoBehaviour
 
     GameObject player;
 
+    bool targetInRange = false;
+
     void Awake()
     {
-        state = states[0];
-        agent = gameObject.GetComponent<NavMeshAgent>();
         viewController = gameObject.GetComponent<EnemyViewController>();
+        attackController = gameObject.GetComponent<EnemyAttackController>();
+        agent = gameObject.GetComponent<NavMeshAgent>();
         agent.speed = speed;
+
+        state = states[0];
         forgedTimeBetweenRoam = timeBetweenRoam;
         player = GameObject.FindGameObjectWithTag("Player");
     }
@@ -54,7 +60,32 @@ public class EnemyMovementController : MonoBehaviour
         }
         else if (state == states[1])
         {
-            
+            if (targetInRange == false)
+            {
+                if (agent.SetDestination(player.transform.position + (dirFromPlayerToSelf * viewController.attackRange)))
+                {
+                    state = states[2];
+                }
+            }
+            else state = states[2];
+        }
+        else if (state == states[2])
+        {
+            if (targetFound == false) state = states[3];
+            else BeginAttack();
+        }
+        else if (state == states[3])
+        {
+            searchTimer += Time.deltaTime;
+
+            Debug.Log("where tf did he go?");
+            agent.SetDestination(targetLastKnownPosition);
+
+            if (searchTimer > giveUpSeachTime)
+            {
+                state = states[0];
+                searchTimer = 0;
+            }
         }
 
         // else if (state == states[1])
@@ -131,16 +162,24 @@ public class EnemyMovementController : MonoBehaviour
         state = states[3];
         Debug.Log("Lost");
         targetFound = false;
+        targetLastKnownPosition = player.transform.position;
     }
 
-    void OnAttack()
+    void OnTargetInRange()
     {
-        state = states[2];
+        targetInRange = true;
     }
 
-    void OnAttackLost()
+    void OnTargetOutsideRange()
     {
         state = states[1];
+        targetInRange = false;
+        attackController.SendMessage("OutsideRange");
+    }
+
+    void BeginAttack()
+    {
+        attackController.SendMessage("InRange");
     }
 
     void FaceTarget(GameObject target)

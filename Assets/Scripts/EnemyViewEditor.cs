@@ -8,8 +8,8 @@ public class EnemyViewEditor : Editor
     {
         EnemyViewController evc = (EnemyViewController)target;
 
-        Vector3 viewAngleA = evc.PosFromAngle(-evc.viewAngle / 2);
-        Vector3 viewAngleB = evc.PosFromAngle(evc.viewAngle / 2);
+        Vector3 viewAngleA = evc.DirFromAngle(-evc.viewAngle / 2);
+        Vector3 viewAngleB = evc.DirFromAngle(evc.viewAngle / 2);
 
         Handles.color = Color.green;
 
