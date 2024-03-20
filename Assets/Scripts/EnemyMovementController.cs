@@ -18,9 +18,11 @@ public class EnemyMovementController : MonoBehaviour
     [SerializeField] float turnSpeed = 5;
 
     bool targetFound = false;
-
+    bool placeHolder = false;
 
     float searchTimer = 0;
+    float searchRomeTime = 2;
+    float thing;
     float giveUpSeachTime = 10;
 
     string state;
@@ -53,7 +55,7 @@ public class EnemyMovementController : MonoBehaviour
             roamTimer += Time.deltaTime;
             if (roamTimer > forgedTimeBetweenRoam)
             {
-                agent.SetDestination(RandomNavMeshLocationInRange(Random.Range(1, 9)));
+                agent.SetDestination(RandomNavMeshLocationInRange(Random.Range(1f, 9f)));
                 roamTimer = 0;
                 forgedTimeBetweenRoam = UnityEngine.Random.Range(timeBetweenRoam - (timeBetweenRoam / 3), timeBetweenRoam + (timeBetweenRoam / 3));
             }
@@ -71,61 +73,46 @@ public class EnemyMovementController : MonoBehaviour
         }
         else if (state == states[2])
         {
-            if (targetFound == false) state = states[3];
+            if (targetFound == false) OnPlayerLost();
             else BeginAttack();
         }
         else if (state == states[3])
         {
-            searchTimer += Time.deltaTime;
-
             Debug.Log("where tf did he go?");
-            agent.SetDestination(targetLastKnownPosition);
 
-            if (searchTimer > giveUpSeachTime)
+            if (!placeHolder)
             {
-                state = states[0];
+                agent.SetDestination(targetLastKnownPosition);
+                thing = 0;
                 searchTimer = 0;
+
+                // Check if we've reached the destination
+                if (!agent.pathPending)
+                {
+                    if (agent.remainingDistance <= agent.stoppingDistance)
+                    {
+                        if (!agent.hasPath || agent.velocity.sqrMagnitude == 0f)
+                        {
+                            placeHolder = true;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                searchTimer += Time.deltaTime;
+                if (searchTimer > giveUpSeachTime)
+                {
+                    state = states[0];
+                    searchTimer = 0;
+                }
+                else if (searchTimer > thing)
+                {
+                    agent.SetDestination(RandomNavMeshLocationInRange(Random.Range(1f, 3f)));
+                    thing += searchRomeTime;
+                }
             }
         }
-
-        // else if (state == states[1])
-        // {
-        //     if (Vector3.Distance(transform.position, player.transform.position) > viewController.attackRange)
-        //     {
-        //         agent.SetDestination(player.transform.position + (dirFromPlayerToSelf * viewController.attackRange));
-        //         state = states[2];
-        //     }
-        //     else
-        //     {
-        //         state = states[2];
-        //     }
-        // }
-        // else if (state == states[2])
-        // {
-        //     Debug.Log("die die die");
-
-        //     if (Vector3.Distance(transform.position, player.transform.position) > viewController.attackRange)
-        //     {
-        //         state = states[1];
-        //     }
-        //     else if (targetFound == false)
-        //     {
-        //         targetLastKnownPosition = player.transform.position;
-        //         state = states[3];
-        //     }
-        // }
-        // else if (state == states[3])
-        // {
-        //     searchTimer += Time.deltaTime;
-
-        //     Debug.Log("where tf did he go?");
-        //     agent.SetDestination(targetLastKnownPosition);
-
-        //     if (searchTimer > giveUpSeach)
-        //     {
-        //         state = states[0];
-        //     }
-        // }
 
         if (targetFound == true)
         {
@@ -140,13 +127,12 @@ public class EnemyMovementController : MonoBehaviour
     public Vector3 RandomNavMeshLocationInRange(float range)
     {
         Vector3 randomDirection = Random.insideUnitSphere * range;
-        randomDirection += transform.position;
-        NavMeshHit hit;
+        Vector3 randomPosition = randomDirection + transform.position;
         Vector3 finalPosition = Vector3.zero;
-        if (NavMesh.SamplePosition(randomDirection, out hit, range, NavMesh.AllAreas))
-        {
-            finalPosition = hit.position;
-        }
+        
+        NavMeshHit hit;
+        NavMesh.SamplePosition(randomPosition, out hit, range, NavMesh.AllAreas);
+        finalPosition = hit.position;
         return finalPosition;
     }
 
@@ -163,6 +149,8 @@ public class EnemyMovementController : MonoBehaviour
         Debug.Log("Lost");
         targetFound = false;
         targetLastKnownPosition = player.transform.position;
+        placeHolder = false;
+        attackController.SendMessage("CannotAttack");
     }
 
     void OnTargetInRange()
