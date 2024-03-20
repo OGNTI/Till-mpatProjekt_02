@@ -10,7 +10,7 @@ public class BulletController : MonoBehaviour
     {
         Vector3 movement = transform.forward * speed * Time.deltaTime;
 
-        transform.Translate(movement);
+        transform.position += movement;
 
     }
 }

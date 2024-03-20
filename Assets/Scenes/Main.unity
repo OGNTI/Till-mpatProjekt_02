@@ -750,7 +750,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55df9d96c10dce142953f35453c258d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 5
+  speed: 4
   turnSpeed: 5
 --- !u!143 &974099757
 CharacterController:
@@ -1202,7 +1202,7 @@ GameObject:
   - component: {fileID: 1536821085}
   - component: {fileID: 1536821090}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: Ground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

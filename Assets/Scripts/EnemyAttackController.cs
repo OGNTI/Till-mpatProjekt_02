@@ -43,12 +43,12 @@ public class EnemyAttackController : MonoBehaviour
         }
     }
 
-    void InRange()
+    void CanAttack()
     {
         targetInRange = true;
     }
 
-    void OutsideRange()
+    void CannotAttack()
     {
         targetInRange = false;
     }

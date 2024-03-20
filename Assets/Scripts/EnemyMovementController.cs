@@ -174,12 +174,12 @@ public class EnemyMovementController : MonoBehaviour
     {
         state = states[1];
         targetInRange = false;
-        attackController.SendMessage("OutsideRange");
+        attackController.SendMessage("CannotAttack");
     }
 
     void BeginAttack()
     {
-        attackController.SendMessage("InRange");
+        attackController.SendMessage("CanAttack");
     }
 
     void FaceTarget(GameObject target)
