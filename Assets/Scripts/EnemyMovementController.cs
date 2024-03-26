@@ -52,16 +52,18 @@ public class EnemyMovementController : MonoBehaviour
 
         if (state == states[0])
         {
+            Debug.Log("What nice weather.");
             roamTimer += Time.deltaTime;
             if (roamTimer > forgedTimeBetweenRoam)
             {
-                agent.SetDestination(RandomNavMeshLocationInRange(Random.Range(1f, 9f)));
+                agent.SetDestination(RandomNavMeshLocationInRange(Random.Range(4f, 18f)));
                 roamTimer = 0;
                 forgedTimeBetweenRoam = UnityEngine.Random.Range(timeBetweenRoam - (timeBetweenRoam / 3), timeBetweenRoam + (timeBetweenRoam / 3));
             }
         }
         else if (state == states[1])
         {
+            Debug.Log("Moving on Target.");
             if (targetInRange == false)
             {
                 if (agent.SetDestination(player.transform.position + (dirFromPlayerToSelf * viewController.attackRange)))
@@ -73,12 +75,13 @@ public class EnemyMovementController : MonoBehaviour
         }
         else if (state == states[2])
         {
+            Debug.Log("Eliminate.");
             if (targetFound == false) OnPlayerLost();
             else BeginAttack();
         }
         else if (state == states[3])
         {
-            Debug.Log("where tf did he go?");
+            Debug.Log("where did he go?");
 
             if (!placeHolder)
             {
@@ -129,7 +132,7 @@ public class EnemyMovementController : MonoBehaviour
         Vector3 randomDirection = Random.insideUnitSphere * range;
         Vector3 randomPosition = randomDirection + transform.position;
         Vector3 finalPosition = Vector3.zero;
-        
+
         NavMeshHit hit;
         NavMesh.SamplePosition(randomPosition, out hit, range, NavMesh.AllAreas);
         finalPosition = hit.position;
@@ -138,6 +141,7 @@ public class EnemyMovementController : MonoBehaviour
 
     void OnPlayerFound()
     {
+        StopMovement();
         state = states[1];
         Debug.Log("Found");
         targetFound = true;
@@ -155,6 +159,7 @@ public class EnemyMovementController : MonoBehaviour
 
     void OnTargetInRange()
     {
+        StopMovement();
         targetInRange = true;
     }
 
@@ -176,5 +181,10 @@ public class EnemyMovementController : MonoBehaviour
         Vector3 direction = (target.transform.position - transform.position).normalized;
         Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
         transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * turnSpeed);
+    }
+
+    void StopMovement()
+    {
+        agent.SetDestination(transform.position);
     }
 }

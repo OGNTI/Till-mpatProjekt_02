@@ -39,7 +39,7 @@ public class EnemyAttackController : MonoBehaviour
             fireTimer = 0;
             
             GameObject bullet = Instantiate(bulletPrefab, gunBarrel.transform.position, transform.rotation);
-            Destroy(bullet, 3f);
+            Destroy(bullet, 2f);
         }
     }
 

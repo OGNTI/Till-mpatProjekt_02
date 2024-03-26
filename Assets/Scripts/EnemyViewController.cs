@@ -51,7 +51,7 @@ public class EnemyViewController : MonoBehaviour
             {
                 if (oldViewTarget != viewTarget) PlayerFound();
 
-                if (Vector3.Distance(transform.position, player.transform.position) < attackRange)
+                if (Vector3.Distance(transform.position, player.transform.position) <= attackRange)
                 {
                     if (playerInAttackRange == false) InAttackRange();
                 }
