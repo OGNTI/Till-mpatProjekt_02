@@ -25,14 +25,18 @@ public class EnemyMovementController : MonoBehaviour
     float thing;
     float giveUpSeachTime = 10;
 
+    int SpreadAngle = 75;
+    int SpreadRange = 3;
+
     string state;
-    string[] states = { "roam", "follow", "attack", "search" };
+    string[] states = { "roam", "follow", "attack", "search", "spreadOut" };
     Vector3 targetLastKnownPosition;
     Vector3 dirFromPlayerToSelf;
 
     GameObject player;
 
     bool targetInRange = false;
+    bool allyBlocking = false;
 
     void Awake()
     {
@@ -116,6 +120,31 @@ public class EnemyMovementController : MonoBehaviour
                 }
             }
         }
+        else if (state == states[4])
+        {
+            if (allyBlocking)
+            {
+                Debug.Log("Oh no my friend is in the way, gotta move.");
+                Vector3 dir = Vector3.zero;
+                Vector3 newDestination = transform.position;
+
+                int a = Random.Range(1, 3);
+                if (a == 1)
+                {
+                    dir = viewController.DirFromAngle(-SpreadAngle);
+                }
+                else if (a == 2)
+                {
+                    dir = viewController.DirFromAngle(SpreadAngle);
+                }
+
+                newDestination = dir * SpreadRange + transform.position;
+                NavMesh.SamplePosition(newDestination, out NavMeshHit hit, Mathf.Infinity, NavMesh.AllAreas);
+                agent.SetDestination(hit.position);
+
+                allyBlocking = false;
+            }
+        }
 
         if (targetFound == true)
         {
@@ -133,8 +162,7 @@ public class EnemyMovementController : MonoBehaviour
         Vector3 randomPosition = randomDirection + transform.position;
         Vector3 finalPosition = Vector3.zero;
 
-        NavMeshHit hit;
-        NavMesh.SamplePosition(randomPosition, out hit, range, NavMesh.AllAreas);
+        NavMesh.SamplePosition(randomPosition, out NavMeshHit hit, range, NavMesh.AllAreas);
         finalPosition = hit.position;
         return finalPosition;
     }
@@ -172,6 +200,7 @@ public class EnemyMovementController : MonoBehaviour
 
     void BeginAttack()
     {
+        allyBlocking = false;
         attackController.SendMessage("CanAttack");
     }
 
@@ -186,5 +215,11 @@ public class EnemyMovementController : MonoBehaviour
     void StopMovement()
     {
         agent.SetDestination(transform.position);
+    }
+
+    void SpreadOut()
+    {
+        state = states[4];
+        allyBlocking = true;
     }
 }

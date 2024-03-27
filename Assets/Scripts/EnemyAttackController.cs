@@ -13,6 +13,8 @@ public class EnemyAttackController : MonoBehaviour
     float fireTimer = 0;
     [SerializeField] float fireRate = 1;
 
+    [SerializeField] float inaccuracy = 3;
+
     bool targetInRange = false;
 
     void Awake()
@@ -37,8 +39,12 @@ public class EnemyAttackController : MonoBehaviour
         if (fireTimer > fireRate)
         {
             fireTimer = 0;
-            
-            GameObject bullet = Instantiate(bulletPrefab, gunBarrel.transform.position, transform.rotation);
+
+            float inaccuracyAngle1 = Random.Range(-inaccuracy, inaccuracy + 1);
+            float inaccuracyAngle2 = Random.Range(-inaccuracy, inaccuracy + 1);
+            Quaternion inaccuracyRotation = transform.rotation * Quaternion.AngleAxis(inaccuracyAngle1, Vector3.up) * Quaternion.AngleAxis(inaccuracyAngle2, Vector3.right); //Make bullets less accurate
+
+            GameObject bullet = Instantiate(bulletPrefab, gunBarrel.transform.position, inaccuracyRotation);
             Destroy(bullet, 2f);
         }
     }

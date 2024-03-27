@@ -33,15 +33,14 @@ public class EnemyViewController : MonoBehaviour
     void Update()
     {
         dirToPlayer = player.transform.position - transform.position;
-        
+
         GameObject oldViewTarget = viewTarget;
 
         //is player in viewRange and viewAngle
         if (Vector3.Distance(transform.position, player.transform.position) < viewRange &&
             Vector3.Angle(transform.forward, dirToPlayer) < viewAngle / 2)
         {
-            RaycastHit hit;
-            Physics.Raycast(transform.position, dirToPlayer, out hit, viewRange); //is sight blocked or not
+            Physics.SphereCast(transform.position, 0.3f, dirToPlayer, out RaycastHit hit, viewRange, Physics.DefaultRaycastLayers); //is sight blocked or not
             Debug.DrawLine(transform.position, hit.point, Color.green);
 
             if (hit.collider != null) viewTarget = hit.collider.gameObject;
@@ -57,6 +56,7 @@ public class EnemyViewController : MonoBehaviour
                 }
                 else OutOfAttackRange();
             }
+            else if (oldViewTarget.tag != "Enemy" && viewTarget.tag == "Enemy") AllyBlockingSight();
             else if (oldViewTarget.tag == "Player" && viewTarget.tag != "Player") PlayerLost();
         }
         else if (playerInViewRange == true) PlayerLost();
@@ -100,5 +100,10 @@ public class EnemyViewController : MonoBehaviour
     {
         playerInAttackRange = false;
         movementController.SendMessage("OnTargetOutsideRange");
+    }
+
+    void AllyBlockingSight()
+    {
+        movementController.SendMessage("SpreadOut");
     }
 }
