@@ -18,7 +18,7 @@ public class EnemyMovementController : MonoBehaviour
     float forgedTimeBetweenRoam;
 
     bool targetFound = false;
-    bool placeHolder = false;
+    bool reachedDestination = false;
 
     float searchTimer = 0;
     float searchRomeTime = 2;
@@ -63,7 +63,7 @@ public class EnemyMovementController : MonoBehaviour
             {
                 agent.SetDestination(RandomNavMeshLocationInRange(Random.Range(4f, 18f)));
                 roamTimer = 0;
-                forgedTimeBetweenRoam = UnityEngine.Random.Range(timeBetweenRoam - (timeBetweenRoam / 3), timeBetweenRoam + (timeBetweenRoam / 3));
+                forgedTimeBetweenRoam = UnityEngine.Random.Range(timeBetweenRoam - (timeBetweenRoam / 3), timeBetweenRoam + (timeBetweenRoam / 3)); //randomize roam frequency 
             }
         }
         else if (state == states[1])
@@ -71,7 +71,7 @@ public class EnemyMovementController : MonoBehaviour
             Debug.Log("Moving on Target.");
             if (targetInRange == false)
             {
-                if (agent.SetDestination(player.transform.position + (dirFromPlayerToSelf * viewController.attackRange)))
+                if (agent.SetDestination(player.transform.position + (dirFromPlayerToSelf * viewController.attackRange))) //move within attackrange relative player to self
                 {
                     state = states[2];
                 }
@@ -88,20 +88,20 @@ public class EnemyMovementController : MonoBehaviour
         {
             Debug.Log("where did he go?");
 
-            if (!placeHolder)
+            if (!reachedDestination) //move to last known then once reached search
             {
                 agent.SetDestination(targetLastKnownPosition);
                 thing = 0;
                 searchTimer = 0;
 
-                // Check if we've reached the destination
+                // Check if reached the destination
                 if (!agent.pathPending)
                 {
                     if (agent.remainingDistance <= agent.stoppingDistance)
                     {
                         if (!agent.hasPath || agent.velocity.sqrMagnitude == 0f)
                         {
-                            placeHolder = true;
+                            reachedDestination = true;
                         }
                     }
                 }
@@ -182,7 +182,7 @@ public class EnemyMovementController : MonoBehaviour
         Debug.Log("Lost");
         targetFound = false;
         targetLastKnownPosition = player.transform.position;
-        placeHolder = false;
+        reachedDestination = false;
         attackController.SendMessage("CannotAttack");
     }
 
