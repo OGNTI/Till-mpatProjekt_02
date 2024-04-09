@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements.Experimental;
 using UnityEngine.InputSystem;
 
 public class LookController : MonoBehaviour

@@ -1,4 +1,3 @@
-using UnityEditor;
 using UnityEngine;
 
 public class EnemyViewController : MonoBehaviour
@@ -8,15 +7,16 @@ public class EnemyViewController : MonoBehaviour
     public float attackRange;
 
     GameObject player;
+    GameObject viewTarget;
+
     EnemyMovementController movementController;
+    
     GameObject eyesParent;
     Renderer[] eyes;
     Color standardEyeColor;
 
     bool playerInViewRange = false;
     bool playerInAttackRange = false;
-
-    GameObject viewTarget;
 
     Vector3 dirToPlayer;
 
@@ -56,8 +56,8 @@ public class EnemyViewController : MonoBehaviour
                 }
                 else OutOfAttackRange();
             }
-            else if (oldViewTarget.tag != "Enemy" && viewTarget.tag == "Enemy") AllyBlockingSight();
-            else if (oldViewTarget.tag == "Player" && viewTarget.tag != "Player") PlayerLost();
+            else if (oldViewTarget != viewTarget && viewTarget.tag == "Enemy") AllyBlockingSight();
+            else if (oldViewTarget != viewTarget && viewTarget.tag != "Player") PlayerLost();
         }
         else if (playerInViewRange == true) PlayerLost();
     }

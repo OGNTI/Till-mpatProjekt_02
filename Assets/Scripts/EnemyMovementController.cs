@@ -10,12 +10,12 @@ public class EnemyMovementController : MonoBehaviour
 
     NavMeshAgent agent;
 
+    [SerializeField] int speed = 5;
+    [SerializeField] float turnSpeed = 5;
+
     float roamTimer = 0;
     float timeBetweenRoam = 4;
     float forgedTimeBetweenRoam;
-
-    [SerializeField] int speed = 5;
-    [SerializeField] float turnSpeed = 5;
 
     bool targetFound = false;
     bool placeHolder = false;
@@ -25,11 +25,12 @@ public class EnemyMovementController : MonoBehaviour
     float thing;
     float giveUpSeachTime = 10;
 
-    int SpreadAngle = 75;
-    int SpreadRange = 3;
+    int spreadAngle = 75;
+    int spreadRange = 3;
 
     string state;
     string[] states = { "roam", "follow", "attack", "search", "spreadOut" };
+
     Vector3 targetLastKnownPosition;
     Vector3 dirFromPlayerToSelf;
 
@@ -131,14 +132,14 @@ public class EnemyMovementController : MonoBehaviour
                 int a = Random.Range(1, 3);
                 if (a == 1)
                 {
-                    dir = viewController.DirFromAngle(-SpreadAngle);
+                    dir = viewController.DirFromAngle(-spreadAngle);
                 }
                 else if (a == 2)
                 {
-                    dir = viewController.DirFromAngle(SpreadAngle);
+                    dir = viewController.DirFromAngle(spreadAngle);
                 }
 
-                newDestination = dir * SpreadRange + transform.position;
+                newDestination = dir * spreadRange + transform.position;
                 NavMesh.SamplePosition(newDestination, out NavMeshHit hit, Mathf.Infinity, NavMesh.AllAreas);
                 agent.SetDestination(hit.position);
 
